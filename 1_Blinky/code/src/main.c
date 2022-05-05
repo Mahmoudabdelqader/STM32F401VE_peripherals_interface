@@ -19,6 +19,7 @@ void delay_ms(uint16_t delay)
 
 void configClk(void)
 {
+
 //	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 //
 //	gpiostr.GPIO_Mode = GPIO_Mode_OUT;
