@@ -1,81 +1,52 @@
 /* Includes */
 #include "stm32f4xx.h"
+#include "SysTick.h"
 #include "led/led.h"
 #include "Button/Button.h"
-
-uint16_t sysTickCnt = 0;
-
-
-void SysTick_Handler(void)
-{
-	sysTickCnt++;
-}
-
-void delayMS(uint16_t delay)
-{
-	sysTickCnt=0;
-	while(sysTickCnt < delay);
-}
-
-void configClk(void)
-{
-	SysTick_Config(SystemCoreClock/10000);
-}
+#include "LCD/lcd.h"
 
 int main(void){
 
 	// configure the clock of the system to generate delay.
 	configClk();
 
-	// Configure LED#1
-	LED led1;
-	led1.GPIO_Mode = GPIO_Mode_OUT;
-	led1.GPIO_Pin = GPIO_Pin_12;
-	led1.GPIO_OType = GPIO_OType_PP;
-	led1.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	led1.GPIO_Speed = GPIO_Speed_100MHz;
-	led1.RCC_AHB1Periph = RCC_AHB1Periph_GPIOD;
-	led1.PORT = GPIOD;
+	// lcd 16x2 object.
+	LCD16X2 lcd;
 
-	led_config(&led1);
+	/* Initialize Data and control pins as output pins. */
+	/*
+	 * lcd pins are connected to PORTB PB0, PB1, PB2, PB3
+	 *
+	 * output type, NO pull-up/down, 100 MHZ speed, Push-Pull type
+	 * */
+	//========= Data ============
+	lcd.GPIO_data_MODE  = GPIO_Mode_OUT;
+	lcd.GPIO_data_OType = GPIO_OType_PP;
+	lcd.GPIO_data_PuPd  = GPIO_PuPd_NOPULL;
+	lcd.GPIO_data_Speed = GPIO_Speed_100MHz;
+	lcd.Data_port = GPIOB;
+	lcd.data_pins[0] = GPIO_Pin_6;
+	lcd.data_pins[1] = GPIO_Pin_7;
+	lcd.data_pins[2] = GPIO_Pin_8;
+	lcd.data_pins[3] = GPIO_Pin_9;
+	lcd.RCC_AHB1Periph_data = RCC_AHB1Periph_GPIOB;
 
-	//=================================================
+	//=========== Control =================
+	lcd.GPIO_control_MODE  = GPIO_Mode_OUT;
+	lcd.GPIO_control_OType = GPIO_OType_PP;
+	lcd.GPIO_control_PuPd  = GPIO_PuPd_NOPULL;
+	lcd.GPIO_control_Speed = GPIO_Speed_100MHz;
+	lcd.Control_port = GPIOD;
+	lcd.EN = GPIO_Pin_9;
+	lcd.RS = GPIO_Pin_10;
+	lcd.RCC_AHB1Periph_Control = RCC_AHB1Periph_GPIOD;
 
-	// Configure LED#2
-	LED led2;
-	led2.GPIO_Mode = GPIO_Mode_OUT;
-	led2.GPIO_Pin = GPIO_Pin_5;
-	led2.GPIO_OType = GPIO_OType_PP;
-	led2.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	led2.GPIO_Speed = GPIO_Speed_100MHz;
-	led2.RCC_AHB1Periph = RCC_AHB1Periph_GPIOE;
-	led2.PORT = GPIOE;
-
-	led_config(&led2);
-
-	//==================================================
-
-	// Configure Button.
-	Button btn;
-	btn.GPIO_Mode = GPIO_Mode_IN;
-	btn.GPIO_PIN = GPIO_Pin_0;
-	btn.GPIO_OType = GPIO_OType_PP;
-	btn.GPIO_PUPD = GPIO_PuPd_UP;
-	btn.GPIO_Speed = GPIO_Speed_100MHz;
-	btn.RCC_AHB1Periph = RCC_AHB1Periph_GPIOD;
-	btn.PORT = GPIOD;
-	btn.state = (uint8_t) 0;
-
-	btn_config(&btn);
+	// init lcd
+	lcd16x2_init(&lcd);
+	lcd16x2_print_string(&lcd, (const char*)"Hello World, Mahmoud Younis");
 
   while (1)
   {
-	  // toggle led2 continuously.
-	  led_toggle(&led2);
-
-	  // toggle led1 if the button pressed.
-	  btn_click_to_toggle_pin(&btn, &led1);
-
 	  // delay
 	  delayMS(100);
   }
