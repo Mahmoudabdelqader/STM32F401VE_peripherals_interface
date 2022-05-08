@@ -2,6 +2,7 @@
 #include "stm32f4xx.h"
 #include "SysTick.h"
 #include "LCD/lcd.h"
+#include "keypad/keypad.h"
 
 int main(void){
 
@@ -41,7 +42,28 @@ int main(void){
 
 	// init lcd
 	lcd16x2_init(&lcd);
-	lcd16x2_print_string(&lcd, (const char*)"Hello World, Mahmoud Younis");
+	lcd16x2_print_string(&lcd, (const char*)"Hello World");
+
+	// Keypad Object.
+	Keypad4X4 keypad;
+
+	// Keypad::Rows
+	keypad.Row_RCC = RCC_AHB1Periph_GPIOD;
+	keypad.Row_PORT = GPIOD;
+	keypad.Rows_pins[0] = GPIO_Pin_0;
+	keypad.Rows_pins[1] = GPIO_Pin_1;
+	keypad.Rows_pins[2] = GPIO_Pin_2;
+	keypad.Rows_pins[3] = GPIO_Pin_3;
+
+	//Keypad::Columns
+	keypad.Col_RCC = RCC_AHB1Periph_GPIOE;
+	keypad.Col_PORT = GPIOE;
+	keypad.Cols_pins[0] = GPIO_Pin_0;
+	keypad.Cols_pins[1] = GPIO_Pin_1;
+	keypad.Cols_pins[2] = GPIO_Pin_2;
+	keypad.Cols_pins[3] = GPIO_Pin_3;
+
+	keypad4x4_config(&keypad);
 
   while (1)
   {
